@@ -1,62 +1,116 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+<h1 align="center">Laravel With Tailwindcss Config</h1>
 
 <p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <i>Step by step setting up laravel App with Tailwind CSS</i>
+  <br>
 </p>
 
-## About Laravel
+<hr>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Table of Contents
+1. [Creating Project](#1-creating-project)
+    * [Create new laravel Application](#create-new-laravel-application)
+    * [Install Laravel’s front-end dependencies using `npm`](#install-laravels-front-end-dependencies-using-npm)
+2. [Setting up Tailwind CSS](#2-setting-up-tailwind-css)
+    * [Install Tailwind and its peer-dependencies using `npm`](#install-tailwind-and-its-peer-dependencies-using-npm)
+    * [Generate `tailwind.config.js` file](#generate-tailwindconfigjs-file)
+    * [Configure Tailwind to remove unused styles in production](#configure-tailwind-to-remove-unused-styles-in-production)
+    * [Configure Tailwind with Laravel Mix](#configure-tailwind-with-laravel-mix)
+    * [Include Tailwind in CSS](#include-tailwind-in-css)
+3. [Finishing](#3-finishing)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+<hr>
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 1. Creating Project
 
-## Learning Laravel
+### Create new laravel Application
+```bash
+laravel new my-project
+```
+```bash
+cd my-project
+```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Install Laravel’s front-end dependencies using `npm`
+```bash
+npm install
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 2. Setting up Tailwind CSS
 
-## Laravel Sponsors
+*Tailwind CSS requires Node.js 12.13.0 or higher.*
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+### Install Tailwind and its peer-dependencies using `npm`
+```bash
+npm install -D tailwindcss@latest postcss@latest autoprefixer@latest
+```
 
-### Premium Partners
+### Generate `tailwind.config.js` file
+```bash
+npx tailwindcss init
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
+This will create a minimal tailwind.config.js file at the root project
+```javascript
+// tailwind.config.js
+module.exports = {
+    purge: [],
+    darkMode: false, // or 'media' or 'class'
+    theme: {
+        extend: {},
+    },
+    variants: {
+        extend: {},
+    },
+    plugins: [],
+}
+```
 
-## Contributing
+### Configure Tailwind to remove unused styles in production
+In `tailwind.config.js` file, configure the `purge` option with the paths to all of your Blade templates and JavaScript components so Tailwind can tree-shake unused styles in production builds:
+```javascript
+// tailwind.config.js
+module.exports = {
+    // ...
+    purge: [
+        './resources/**/*.blade.php',
+        './resources/**/*.js',
+        './resources/**/*.vue',
+    ],
+    // ...
+}
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Configure Tailwind with Laravel Mix
+In `webpack.mix.js`, add `tailwindcss` as a PostCSS plugin
+```javascript
+// webpack.mix.js
+mix.js("resources/js/app.js", "public/js")
+    .postCss("resources/css/app.css", "public/css", [
+        require("tailwindcss"),
+]);
+```
 
-## Code of Conduct
+### Include Tailwind in CSS
+Open the `./resources/css/app.css` file that Laravel generates for you by default and use the `@tailwind` directive to include Tailwind’s `base`, `components`, and `utilities` styles, replacing the original file contents
+```css
+/* ./resources/css/app.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Import stylesheet in main Blade layout (commonly `resources/views/layouts/app.blade.php` or similar) and add the responsive viewport meta tag if it’s not already present
+```html
+<!doctype html>
+<head>
+    <!-- ... --->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <!-- ... --->
+</head>
+```
 
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 3. Finishing
+Now when you run `npm run watch` or `npm run dev` or `npm run prod`, Tailwind CSS will be ready to use in Laravel Mix project.
